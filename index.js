@@ -25,7 +25,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     const database = client.db("pawMart");
     const listingColl = database.collection("listing");
     const orderColl = database.collection("order");
@@ -68,32 +68,37 @@ async function run() {
       res.send(result);
     });
     app.put("/listing/:id", async (req, res) => {
-  const id = req.params.id;
-  let updatedData = req.body;
+      const id = req.params.id;
+      let updatedData = req.body;
 
-  // _id ke set theke bad dao
-  if (updatedData._id) {
-    delete updatedData._id;
-  }
+      // _id ke set theke bad dao
+      if (updatedData._id) {
+        delete updatedData._id;
+      }
 
-  const filter = { _id: new ObjectId(id) };
-  const update = {
-    $set: updatedData,
-  };
+      const filter = { _id: new ObjectId(id) };
+      const update = {
+        $set: updatedData,
+      };
 
-  try {
-    const result = await listingColl.updateOne(filter, update);
-    console.log("update result:", result); // 
-    res.send(result);
-  } catch (err) {
-    console.error("Update error:", err);
-    res.status(500).send({ error: "Update failed" });
-  }
-});
-
+      try {
+        const result = await listingColl.updateOne(filter, update);
+        console.log("update result:", result); //
+        res.send(result);
+      } catch (err) {
+        console.error("Update error:", err);
+        res.status(500).send({ error: "Update failed" });
+      }
+    });
+    app.get("/order/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const result = await orderColl.find(query).toArray();
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
